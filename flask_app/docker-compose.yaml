@@ -1,0 +1,29 @@
+version: '3'
+services:
+  flask_app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - ${PORT}:80
+    environment:
+      HOST : *
+      PORT : *
+    depends_on:
+      - redis
+
+  redis:
+    container_name: redis
+    build:
+      context: ./Redis
+      dockerfile: Dockerfile
+    ports:
+      - 6379:6379
+      - 8001:8001
+    environment:
+      REDIS_HOST: *
+      REDIS_PORT: *
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
