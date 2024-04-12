@@ -1,8 +1,7 @@
 from typing import TextIO
 
-import requests
 from requests import post
-import os
+
 from time import sleep
 
 
@@ -27,7 +26,7 @@ class Alarm:
         return round(100 / (dict_info['MemTotal'] / dict_info['MemFree']), 2)
 
     def send_signal(self, lvl_used: float):
-        requests.post(self._api_uri, json={'status': 'alarm', 'used_mem': lvl_used})
+        post(self._api_uri, json={'status': 'alarm', 'used_mem': lvl_used})
         ...
 
     def check(self):

@@ -22,5 +22,4 @@ class Resume(JsonModel):
             exit(1)
 
 
-class ResumeWithId(Resume):
-    id: UUID = Field(index=True,alias='pk')
+

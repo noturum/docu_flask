@@ -1,7 +1,6 @@
-
 from pydantic import ValidationError
 from redis_om import NotFoundError, Migrator
-from ResumeModel import Resume, ResumeWithId
+from ResumeModel import Resume
 import logging
 
 logging.basicConfig(filename='error.log',
@@ -13,27 +12,17 @@ from flask import Flask, request
 app = Flask('__name__')
 
 
-@app.route('/resume/<string:resume_id>', methods=['GET', 'PUT'])
+@app.route('/resume/<string:resume_id>', methods=['GET'])
 def get_resume(resume_id):
-    if request.method == 'GET':
-        try:
-            resume = Resume.get(resume_id)
-            return resume.dict()
-        except NotFoundError:
-            return {}
-    else:
-        try:
-            resume = ResumeWithId.get(resume_id)
-            resume.update(**request.json)
-            print(resume.save())
-        except NotFoundError:
-            resume = Resume(**request.json)
-            resume.save()
-            return 'succ', 200
+    try:
+        resume = Resume.get(resume_id)
+        return resume.dict()
+    except NotFoundError:
+        return {}
 
 
 @app.route('/resume', methods=['POST'])
-def add_resume():
+def create_resume():
     try:
         resume = Resume(**request.json)
         resume.save()
@@ -42,6 +31,18 @@ def add_resume():
         return "Bad request.", 400
 
 
+@app.route('/resume', methods=['PUT'])
+def put_resume():
+    try:
+        resume = Resume.get(request.json.get('pk'))
+        resume.update(**request.json)
+        return resume.save()
+    except NotFoundError:
+        resume = Resume(**request.json)
+        return resume.save()
+
+
+
 if __name__ == '__main__':
     Migrator().run()
-    app.run(host='0.0.0.0', debug=True, load_dotenv=True,port=8080)
+    app.run(host='0.0.0.0', debug=True, load_dotenv=True, port=8080)
